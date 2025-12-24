@@ -1,16 +1,41 @@
-import { Navigate } from "react-router-dom";
+// import { Navigate } from "react-router-dom";
+// import { useAuth } from "../contexts/AuthContext";
+
+// const WithPrivateRoute = ({ children }) => {
+//   const { currentUser } = useAuth();
+
+//   // If user is logged in, allow access
+//   if (currentUser) {
+//     return children;
+//   }
+
+//   // Otherwise redirect to login
+//   return <Navigate to="/login" replace />;
+// };
+
+// export default WithPrivateRoute;
+
+// src/utils/WithPrivateRoute.jsx
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
-const WithPrivateRoute = ({ children }) => {
-  const { currentUser } = useAuth();
+export default function WithPrivateRoute({ children, requiredRole }) {
+  const { currentUser, userRole, loading } = useAuth();
+  const location = useLocation();
 
-  // If user is logged in, allow access
-  if (currentUser) {
-    return children;
+  if (loading) {
+    return <div className="text-center py-10">Loading...</div>;
   }
 
-  // Otherwise redirect to login
-  return <Navigate to="/login" replace />;
-};
+  if (!currentUser) {
+    // Redirect to login, remember where they were
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
 
-export default WithPrivateRoute;
+  if (requiredRole && userRole !== requiredRole) {
+    // Wrong role — send to their correct dashboard or home
+    return <Navigate to="/" replace />;
+  }
+
+  return children;
+}
