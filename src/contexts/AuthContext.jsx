@@ -61,6 +61,7 @@
 // }
 
 
+
 // src/contexts/AuthContext.jsx
 import { createContext, useContext, useState, useEffect } from "react";
 import {
@@ -71,7 +72,7 @@ import {
 } from "firebase/auth";
 import { doc, getDoc, setDoc } from "firebase/firestore";
 
-import { auth, db } from "../config/firebase"; // Make sure db is exported from firebase.jsx
+import { auth, db } from "../config/firebase";
 
 // Create context
 const AuthContext = createContext();
@@ -85,35 +86,35 @@ export function useAuth() {
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [userRole, setUserRole] = useState(null); // "patient" or "physiotherapist"
-  const [loading, setLoading] = useState(true); // Overall loading (auth + role fetch)
+  const [loading, setLoading] = useState(true);
 
-  // Helper: Determine and set role after auth state changes
-  async function loadUserRole(uid) {
+  // Improved role loading — handles offline error gracefully
+  const loadUserRole = async (uid) => {
     try {
-      // First check if user is a physiotherapist
-      const physioDoc = await getDoc(doc(db, "Physiotherapists", uid));
-      if (physioDoc.exists()) {
+      // Try physiotherapist first
+      const physioSnap = await getDoc(doc(db, "Physiotherapists", uid));
+      if (physioSnap.exists()) {
         setUserRole("physiotherapist");
         return;
       }
 
-      // Then check if user is a patient
-      const patientDoc = await getDoc(doc(db, "Users", uid));
-      if (patientDoc.exists()) {
+      // Try patient
+      const patientSnap = await getDoc(doc(db, "Users", uid));
+      if (patientSnap.exists()) {
         setUserRole("patient");
         return;
       }
 
-      // If no profile found (shouldn't happen normally)
+      console.warn("No profile found for user:", uid);
       setUserRole(null);
     } catch (error) {
-      console.error("Error fetching user role:", error);
-      setUserRole(null);
+      console.warn("Role fetch failed (temporary/offline - continuing anyway):", error.message);
+      setUserRole(null); // Don't break the app
     }
-  }
+  };
 
-  // Register — now only for physiotherapists
-  async function register(email, password, role = "physiotherapist") {
+  // Register (only physiotherapists)
+  const register = async (email, password, role = "physiotherapist") => {
     if (role !== "physiotherapist") {
       throw new Error("Patients cannot register themselves");
     }
@@ -121,33 +122,31 @@ export function AuthProvider({ children }) {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Save physiotherapist profile in Firestore
     await setDoc(doc(db, "Physiotherapists", user.uid), {
       email: user.email,
       role: "physiotherapist",
       createdAt: new Date(),
-      // You can add more fields later: name, license_number, etc.
     });
 
     return userCredential;
-  }
+  };
 
-  // Login (shared)
-  function login(email, password) {
+  // Login
+  const login = (email, password) => {
     return signInWithEmailAndPassword(auth, email, password);
-  }
+  };
 
   // Logout
-  function logout() {
+  const logout = () => {
     setUserRole(null);
     return signOut(auth);
-  }
+  };
 
-  // Observe auth state changes
+  // Auth observer
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
-      setLoading(true); // Start loading role
+      setLoading(true);
 
       if (user) {
         await loadUserRole(user.uid);
@@ -155,7 +154,7 @@ export function AuthProvider({ children }) {
         setUserRole(null);
       }
 
-      setLoading(false); // Done loading
+      setLoading(false); // Always stop loading
     });
 
     return unsubscribe;
@@ -163,8 +162,8 @@ export function AuthProvider({ children }) {
 
   const value = {
     currentUser,
-    userRole,      // ← NEW: "patient" or "physiotherapist"
-    loading,       // ← true while checking auth + role
+    userRole,
+    loading,
     register,
     login,
     logout,
@@ -172,8 +171,17 @@ export function AuthProvider({ children }) {
 
   return (
     <AuthContext.Provider value={value}>
-      {/* Only render children when fully loaded */}
-      {!loading && children}
+      {loading ? (
+        <div className="min-h-screen flex items-center justify-center bg-gray-100">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-sky-800 mx-auto mb-8"></div>
+            <p className="text-2xl font-medium text-gray-700">Loading your dashboard...</p>
+            <p className="text-gray-500 mt-4">Please wait a moment</p>
+          </div>
+        </div>
+      ) : (
+        children
+      )}
     </AuthContext.Provider>
   );
 }
