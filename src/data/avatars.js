@@ -1,5 +1,3 @@
-// Example: src/data/avatars.js
-
 export const localAvatars = [
   {
     id: "granny_default",
