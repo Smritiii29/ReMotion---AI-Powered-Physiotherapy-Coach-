@@ -89,9 +89,13 @@
 
 
 // src/components/accounts/Login.jsx
-import { useState, useEffect } from "react";
+// src/components/accounts/Login.jsx
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../../contexts/AuthContext";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+
+import { auth, db } from "../../config/firebase";
 import ErrorMessage from "../layouts/ErrorMessage";
 
 export default function Login() {
@@ -99,32 +103,59 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [roleHint, setRoleHint] = useState("patient"); // default hint
+  const [roleHint, setRoleHint] = useState("patient");
 
-  const { login, currentUser, userRole, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!authLoading && currentUser && userRole) {
-      if (userRole === "physiotherapist") {
-        navigate("/physio/dashboard");
-      } else if (userRole === "patient") {
-        navigate("/patient/dashboard");
-      }
-    }
-  }, [currentUser, userRole, authLoading, navigate]);
+async function handleFormSubmit(e) {
+  e.preventDefault();
+  setError("");
+  setLoading(true);
 
-  async function handleFormSubmit(e) {
-    e.preventDefault();
-    try {
-      setError("");
-      setLoading(true);
-      await login(email, password);
-    } catch {
-      setError("Failed to sign in. Please check your email and password.");
+  try {
+    // 1️⃣ Firebase Auth login
+    const userCredential = await signInWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
+
+    const user = userCredential.user;
+
+    // 2️⃣ Check Physiotherapists collection FIRST
+    const physioSnap = await getDoc(doc(db, "Physiotherapists", user.uid));
+
+    if (physioSnap.exists()) {
+      // Physiotherapist login
+      navigate("/physio/dashboard");
+      return;
     }
+
+    // 3️⃣ Else check Patients (Users collection)
+    const userSnap = await getDoc(doc(db, "Users", user.uid));
+
+    if (!userSnap.exists()) {
+      throw new Error("User profile not found.");
+    }
+
+    const userData = userSnap.data();
+
+    // 4️⃣ Patient onboarding flow
+    if (!userData.passwordChanged) {
+      navigate("/change-password");
+    } else if (!userData.selected_avatar_id) {
+      navigate("/select-avatar");
+    } else {
+      navigate("/patient/dashboard");
+    }
+  } catch (error) {
+    console.error("Login failed:", error);
+    setError("Failed to sign in. Please check your credentials.");
+  } finally {
     setLoading(false);
   }
+}
+
 
   return (
     <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -134,7 +165,7 @@ export default function Login() {
             Sign In
           </h2>
 
-          {/* Role Switcher Tabs */}
+          {/* Role Switcher (UI hint only) */}
           <div className="mt-6 flex justify-center">
             <div className="bg-gray-200 rounded-lg p-1 flex">
               <button
@@ -162,7 +193,6 @@ export default function Login() {
             </div>
           </div>
 
-          {/* Helpful Message Based on Role */}
           <p className="mt-4 text-center text-sm text-gray-600">
             {roleHint === "patient" ? (
               <>Your physiotherapist sent you login details via email.</>
@@ -206,7 +236,10 @@ export default function Login() {
             {roleHint === "physiotherapist" && (
               <p className="mt-4">
                 Don't have an account?{" "}
-                <Link to="/register" className="text-sky-600 hover:underline font-medium">
+                <Link
+                  to="/register"
+                  className="text-sky-600 hover:underline font-medium"
+                >
                   Register as Physiotherapist
                 </Link>
               </p>
