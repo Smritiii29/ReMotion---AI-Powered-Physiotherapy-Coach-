@@ -8,9 +8,19 @@
 
 body {
   font-family: sans-serif;
-  background-color: #e0dfdf;
-  color: #0d0d0d;
+  background-color: #0a2a26;
+  color: #e6f7f6;
 }
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+  z-index: 9999;
+}
+
 
 h1 {
   font-size: 4rem;
@@ -35,8 +45,8 @@ section {
   position: relative;
   width: 100vw;
   height: 100svh;
-  background-color: #e0dfdf;
-  color: #0d0d0d;
+  background-color: #0a2a26;
+  color: #e6f7f6;
   overflow: hidden;
 }
 
@@ -45,8 +55,8 @@ section {
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #0d0d0d;
-  color: #e0dfdf;
+  background: linear-gradient(90deg, transparent, #289997, #4ab5b3, #289997, transparent);
+  color: #e6f7f6;
   padding: 2rem;
 }
 
@@ -73,8 +83,8 @@ section {
   left: 0;
   width: 150vw;
   height: 100svh;
-  color: #e0dfdf;
-  background-color: #0d0d0d;
+  color: #e6f7f6;
+  background-color: #1b5550;
   transform: translateX(100%);
   z-index: 2;
 }
@@ -100,7 +110,7 @@ section {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: #0d0d0d;
+  background-color: #289997;
   clip-path: circle(0% at 50% 50%);
 }
 
@@ -120,7 +130,7 @@ section {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
-  color: #e0dfdf;
+  color: #e6f7f6;
 }
 
 .tooltip:nth-child(2) {
@@ -132,7 +142,7 @@ section {
   position: relative;
   width: 100%;
   height: 1px;
-  background-color: #5f5f5f;
+  background-color: #4ab5b3;
   margin: 0.5rem 0;
   transform: scaleX(0);
 }
@@ -148,10 +158,11 @@ section {
 .tooltip .icon {
   font-size: 2.5rem;
   overflow: hidden;
+  color: #7cd6d4;
 }
 
 .tooltip .description {
-  color: #5f5f5f;
+  color: #7cd6d4;
 }
 
 .tooltip:nth-child(2) .icon,

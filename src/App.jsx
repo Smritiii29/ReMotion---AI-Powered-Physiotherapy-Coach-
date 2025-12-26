@@ -7,6 +7,7 @@ import { SplitText } from 'gsap/all';
 import Lenis from 'lenis';
 import shakerModel from './woman.glb'; 
 
+
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
 const App = () => {
@@ -199,16 +200,216 @@ const App = () => {
   return (
     // Your JSX is unchanged
     <div className="app-container">
-      <section className="intro">
-        <h1>Remotion doesn't treat. It transforms!</h1>
-      </section>
+      <section 
+  className="intro"
+  
+>
+  {/* Animated background elements */}
+  <div 
+    style={{
+      position: 'absolute',
+      top: '20%',
+      left: '10%',
+      width: '300px',
+      height: '300px',
+      borderRadius: '50%',
+      background: 'radial-gradient(circle, rgba(40, 153, 151, 0.1) 0%, rgba(27, 85, 80, 0) 70%)',
+      filter: 'blur(40px)',
+      animation: 'float 6s ease-in-out infinite',
+    }}
+  />
+  
+  <div 
+    style={{
+      position: 'absolute',
+      bottom: '15%',
+      right: '15%',
+      width: '200px',
+      height: '200px',
+      borderRadius: '50%',
+      background: 'radial-gradient(circle, rgba(74, 181, 179, 0.15) 0%, rgba(10, 42, 38, 0) 70%)',
+      filter: 'blur(30px)',
+      animation: 'float 8s ease-in-out infinite 1s',
+    }}
+  />
+  
+  <div 
+    style={{
+      position: 'absolute',
+      top: '60%',
+      left: '30%',
+      width: '150px',
+      height: '150px',
+      borderRadius: '50%',
+      background: 'radial-gradient(circle, rgba(124, 214, 212, 0.1) 0%, rgba(27, 85, 80, 0) 70%)',
+      filter: 'blur(25px)',
+      animation: 'float 10s ease-in-out infinite 2s',
+    }}
+  />
+
+  {/* Main heading with animated gradient */}
+  <h1 
+    style={{
+      fontSize: 'clamp(3rem, 6vw, 5rem)',
+      fontWeight: 800,
+      textAlign: 'center',
+      maxWidth: '900px',
+      lineHeight: 1.1,
+      position: 'relative',
+      zIndex: 2,
+      padding: '2rem',
+    }}
+  >
+    {/* Gradient text with animation */}
+    <span 
+      style={{
+        background: 'linear-gradient(90deg, #e6f7f6, #4ab5b3, #289997, #1b5550, #289997, #4ab5b3, #e6f7f6)',
+        backgroundSize: '300% 100%',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        backgroundClip: 'text',
+        animation: 'shimmer 8s linear infinite',
+        display: 'inline-block',
+      }}
+    >
+      ReMotion doesn't treat.
+    </span>
+    
+    <br />
+    
+    <span 
+      style={{
+        background: 'linear-gradient(90deg, #289997, #4ab5b3, #e6f7f6, #4ab5b3, #289997)',
+        backgroundSize: '200% 100%',
+        WebkitBackgroundClip: 'text',
+        WebkitTextFillColor: 'transparent',
+        backgroundClip: 'text',
+        animation: 'shimmer 6s linear infinite reverse',
+        display: 'inline-block',
+        marginTop: '1rem',
+        fontSize: 'clamp(3.5rem, 7vw, 6rem)',
+        fontWeight: 900,
+        letterSpacing: '-0.02em',
+      }}
+    >
+      It transforms!
+    </span>
+    
+    {/* Animated underline */}
+    <div 
+      style={{
+        width: '60%',
+        height: '4px',
+        margin: '3rem auto 0',
+        background: 'linear-gradient(90deg, transparent, #289997, #4ab5b3, #289997, transparent)',
+        borderRadius: '2px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      <div 
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: '-100%',
+          width: '100%',
+          height: '100%',
+          background: 'linear-gradient(90deg, transparent, #e6f7f6, #7cd6d4, transparent)',
+          animation: 'slide 3s ease-in-out infinite',
+        }}
+      />
+    </div>
+  </h1>
+
+  {/* Decorative elements */}
+  <div 
+    style={{
+      position: 'absolute',
+      bottom: '5%',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      gap: '1rem',
+      zIndex: 2,
+    }}
+  >
+    <div 
+      style={{
+        color: '#4ab5b3',
+        fontSize: '1.5rem',
+        animation: 'bounce 2s ease-in-out infinite',
+      }}
+    >
+      ↓
+    </div>
+    <p 
+      style={{
+        color: '#e6f7f6',
+        fontSize: '0.9rem',
+        letterSpacing: '0.2em',
+        textTransform: 'uppercase',
+        opacity: 0.7,
+      }}
+    >
+      Scroll to explore
+    </p>
+  </div>
+
+  {/* Add animation styles */}
+  <style>{`
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-20px) rotate(180deg); }
+    }
+    
+    @keyframes shimmer {
+      0% { background-position: 200% center; }
+      100% { background-position: -200% center; }
+    }
+    
+    @keyframes slide {
+      0% { left: -100%; }
+      50% { left: 100%; }
+      100% { left: 100%; }
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(10px); }
+    }
+    
+    .intro h1 span {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .intro h1 span::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+      transform: translateX(-100%);
+      animation: shine 4s ease-in-out infinite;
+    }
+    
+    @keyframes shine {
+      0% { transform: translateX(-100%); }
+      50%, 100% { transform: translateX(100%); }
+    }
+  `}</style>
+</section>
 
       <section className="product-overview" ref={productOverviewRef}>
         <div className="header-1">
           <h1>Every Recovery Starts With</h1>
         </div>
         <div className="header-2">
-          <h2>Remotion</h2>
+          <h2>ReMotion</h2>
         </div>
 
         <div className="circular-mask"></div>
@@ -236,7 +437,7 @@ const App = () => {
       </section>
 
       <section className="outro">
-        <h1>Don't just recover. Remotion</h1>
+        <h1>Don't just recover. ReMotion</h1>
       </section>
     </div>
   );
