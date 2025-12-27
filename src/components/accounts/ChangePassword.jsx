@@ -46,7 +46,7 @@ export default function ChangePassword() {
       });
 
       // 3️⃣ Redirect to avatar selection
-      navigate("/select-avatar");
+      navigate("/patient/dashboard");
     } catch (err) {
       console.error("Password update failed:", err);
       setError(
